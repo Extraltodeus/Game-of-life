@@ -1,5 +1,5 @@
 # Game-of-life
-another remake of the game of life in python. Uses multi threading and has a few bonus features.
+A remake of the game of life in python. Uses multi threading and has a few bonus features.
 
 Only requires pygame :
 
