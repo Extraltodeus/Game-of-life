@@ -4,7 +4,7 @@ from time import sleep
 from math import floor,ceil
 from os import system
 from colorsys import hsv_to_rgb
-from multiprocessing import Process,Queue
+from multiprocessing import Process,Queue,cpu_count
 
 def hsv2rgb(h,s,v):
     return tuple(round(i * 255) for i in hsv_to_rgb(h,s,v))
@@ -61,7 +61,7 @@ class game_of_life():
         self.grid2 = self.create_grid()
 
         slices = []
-        cores = 7
+        cores = cpu_count()-1
 
         s = ceil(self.grid_res/cores)
         for c in range(0,cores):
