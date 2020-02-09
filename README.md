@@ -13,7 +13,7 @@ Right click : pause/unpause
 
 Mouse wheel : change grid resolution
 
-Keypad +/-  : Speed +/-
+Keypad +/-  : Speed +/- (from 2 to 60 refresh per second)
 
 Return : clear all cells
 
