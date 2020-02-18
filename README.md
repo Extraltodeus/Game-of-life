@@ -5,7 +5,7 @@ Only requires pygame :
 
 pip install pygame
 
-# Controls :
+## Controls :
 
 Left  click : add/remove a cell
 
@@ -24,3 +24,6 @@ D : Generate random cells
 F : Print grid in CLI
 
 G : Do one step and print grid in CLI
+
+## Screenshot :
+![](https://i.imgur.com/PkrTGnp.png)
