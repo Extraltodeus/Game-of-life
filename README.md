@@ -5,7 +5,7 @@ Only requires pygame :
 
 pip install pygame
 
-## Controls :
+# Controls :
 
 Left  click : add/remove a cell
 
