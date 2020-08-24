@@ -1,13 +1,109 @@
 import pygame
+import threading
 from random import randint
 from time import sleep
 from math import floor,ceil
 from os import system
+import tkinter
 from colorsys import hsv_to_rgb
 from multiprocessing import Process,Queue,cpu_count
+import itertools
+from pprint import pprint
+system("clear")
+birth = [3]
+stay  = [2,3]
 
 def hsv2rgb(h,s,v):
     return tuple(round(i * 255) for i in hsv_to_rgb(h,s,v))
+
+def daemonizer(fName):
+    try:
+        daemon = threading.Thread(target=fName)
+        daemon.daemon = True
+        daemon.start()
+    except Exception as e:
+        print(e)
+
+offbt = "grey79"
+onbt  = "lime green"
+bgmain = 'grey60'
+
+class tk_window():
+    def __init__(self):
+        self.tk = tkinter.Tk()
+        self.tk.title("Rules")
+        self.tk.geometry('240x120')
+        self.tk.configure(background=bgmain)
+
+        self.buttons = {'b':[],'s':[]}
+
+        self.sep1 = tkinter.Label(self.tk, text=" ", background=bgmain).grid(column=0,row=3)
+
+        self.buttons['b'] = self.create_buttons(self.bfunc,'b')
+        self.bl   = tkinter.Label(self.tk, text="Birth", background=bgmain).grid(column=2,row=0)
+
+        self.sep2 = tkinter.Label(self.tk, text=" ", background=bgmain).grid(column=5,row=3)
+
+        self.buttons['s'] = self.create_buttons(self.bfunc,'s',6)
+        self.sl   = tkinter.Label(self.tk, text="Stay", background=bgmain).grid(column=8,row=0)
+        self.press_buttons()
+        self.init_window()
+
+
+    def init_window(self):
+        self.tk.mainloop()
+
+    def create_buttons(self, command, type, py=0, px=0):
+        btnsb = 9*[0]
+        i = 0
+        for x, y in itertools.product(range(3),range(3)):
+            btnsb[i] = tkinter.Button(self.tk, relief="raised", text=str(i), command = lambda num=i+1, t=type, : command(num,t))
+            btnsb[i].grid(column=y+1+py,row=x+1+px)
+            i+=1
+        return btnsb
+
+    def press_buttons(self):
+        for b in self.buttons['b']:
+            if b['text'] == "3":
+                self.buttons['b'][int(b['text'])]['relief'] = 'sunken'
+        for s in self.buttons['s']:
+            if s['text'] in ["2","3"]:
+                self.buttons['s'][int(s['text'])]['relief'] = 'sunken'
+
+    def bfunc(self,v,t):
+        global birth, stay, death, game_on
+        game_on = False
+        sleep(0.1)
+
+        if self.buttons[t][v-1]['relief'] == 'sunken':
+            self.buttons[t][v-1]['relief'] = 'raised'
+        else :
+            self.buttons[t][v-1]['relief'] = 'sunken'
+
+        self.apply_rules()
+        game_on = True
+
+    def is_int(self,s):
+        try:
+            int(s)
+            return True
+        except ValueError:
+            return False
+
+    def apply_rules(self):
+        global birth, stay, death
+        birth = []
+        stay  = []
+        for b in self.buttons['b']:
+            if b['relief'] == 'sunken':
+                birth.append(int(b['text']))
+        for s in self.buttons['s']:
+            if s['relief'] == 'sunken':
+                stay.append(int(s['text']))
+
+
+
+daemonizer(tk_window)
 
 class game_of_life():
     def __init__(self):
@@ -34,9 +130,9 @@ class game_of_life():
 
     def will_cell_live(self,x,y):
         c = self.count_close(x,y)
-        if c == 3:
+        if self.grid[x][y] == 0 and c in birth:
             return 1
-        if c == 2 and self.grid[x][y] == 1:
+        if self.grid[x][y] == 1 and c in stay:
             return 1
         return 0
 
@@ -110,17 +206,32 @@ class game_of_life():
 
     def random_cells(self):
         l_count = 0
+        divider = 12
+        halfgrid = floor(self.grid_res/2)
+        proportion = floor(self.grid_res/divider)
         self.reset_grid()
         for x in range(self.grid_res):
             for y in range(self.grid_res):
-                if x > self.grid_res/3 and x < self.grid_res/3*2 and y > self.grid_res/3 and y < self.grid_res/3*2 :
-                    if randint(0,100)  <= 50:
+                if  self.grid_res/2+1 > x > halfgrid - proportion and self.grid_res/2+1 > y > halfgrid - proportion :
+                    if randint(0,100)  <= 25:
                         life = 1
                         l_count += 1
                     else:
                         life = 0
                     self.grid[x][y] = life
                     self.draw_cell(x,y,colors[life])
+
+                    mirrorX = halfgrid + (halfgrid - x)
+                    self.grid[mirrorX][y] = life
+                    self.draw_cell(mirrorX,y,colors[life])
+
+                    mirrorY = halfgrid + (halfgrid - y)
+                    self.grid[x][mirrorY] = life
+                    self.draw_cell(x,mirrorY,colors[life])
+
+                    self.grid[mirrorX][mirrorY] = life
+                    self.draw_cell(mirrorX,mirrorY,colors[life])
+
         refresh_title(l_count)
 
     def add_cell(self,pos):
@@ -170,10 +281,9 @@ def colorcycle():
 
 def grid_plus():
     global grid_res,gol
-    if grid_res < 160:
+    if grid_res < 140:
         screen.fill(colors[0])
         grid_res = grid_res + 10
-        print(grid_res,grid_res*grid_res)
         gol.reset_grid()
         gol = game_of_life()
         gol.random_cells()
@@ -183,7 +293,6 @@ def grid_minus():
     if grid_res > 10:
         screen.fill(colors[0])
         grid_res = grid_res - 10
-        print(grid_res,grid_res*grid_res)
         gol.reset_grid()
         gol = game_of_life()
         gol.random_cells()
@@ -192,15 +301,11 @@ def speed_plus():
     global fps,gol
     if fps == 2: fps = 5
     elif fps < 60 : fps = fps + 5
-    system("clear")
-    print(fps)
 
 def speed_minus():
     global fps,gol
     if fps > 5: fps = fps - 5
     else : fps = 2
-    system("clear")
-    print(fps)
 
 def refresh_title(count=0):
     if count == 0: count = gol.c_sum
@@ -211,9 +316,8 @@ def clear_output():
     system("clear")
 
 pygame.init()
-system("clear")
 
-res = 800
+res = 980
 size = [res, res]
 grid_res = 80
 
@@ -221,7 +325,7 @@ screen = pygame.display.set_mode(size)
 pygame.display.set_caption("Game of life")
 clock = pygame.time.Clock()
 
-fps  = 20
+fps  = 30
 
 color_c = randint(0,1000)
 c_c = hsv2rgb(color_c/1000,0.85,0.85)
@@ -229,9 +333,15 @@ colors = [(0,0,0),c_c]
 
 gol = game_of_life()
 
+game_on = False
+
+def pause_unpause():
+    global game_on
+    game_on = (not game_on)
+
 def run_game():
+    global game_on
     done = False
-    game_on = False
     while not done:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -241,13 +351,9 @@ def run_game():
                     # gol.print_step()
                     # gol.info_cell(pos)
                 elif event.button == 3:
-                    if game_on == True:
-                        game_on = False
-                    else:
-                        game_on = True
+                    pause_unpause()
                 if event.button == 2:
                     gol.random_cells()
-
                 elif event.button == 4:
                     grid_plus()
                 elif event.button == 5:
@@ -255,7 +361,8 @@ def run_game():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    done=True
+                    game_on = False
+                    done = True
                 elif event.key == pygame.K_r or event.key == pygame.K_RETURN :
                     gol.reset_grid()
                     screen.fill(colors[0])
@@ -264,10 +371,7 @@ def run_game():
                 elif event.key == pygame.K_d:
                     gol.random_cells()
                 elif event.key == pygame.K_SPACE:
-                    if game_on == True:
-                        game_on = False
-                    else:
-                        game_on = True
+                    pause_unpause()
                 elif event.key == pygame.K_g:
                     game_on = False
                     gol.step()
