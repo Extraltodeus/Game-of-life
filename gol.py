@@ -140,14 +140,21 @@ class game_of_life():
         cols = s[1] - s[0] + 1
         while cols > self.grid_res:
             cols = cols - 1
+        if s[0] == 0: xS = 0
+        else        : xS = 1
+        colSlices = self.grid[s[0]-xS:s[1]+2]
+        cc = 0
+        for c in colSlices:
+            cc += sum(c)
 
-        for t in range(0,cols):
-            x = t + s[0]
-            for y in range(self.grid_res):
-                life = self.will_cell_live(x,y)
-                self.grid2[x][y] = life
-                self.draw_cell(x,y,colors[life])
-                self.c_sum = self.c_sum + life
+        if cc > 0 or 0 in birth or 0 in stay:
+            for t in range(0,cols):
+                x = t + s[0]
+                for y in range(self.grid_res):
+                    life = self.will_cell_live(x,y)
+                    self.grid2[x][y] = life
+                    self.draw_cell(x,y,colors[life])
+                    self.c_sum = self.c_sum + life
         q.put([s,self.grid2[s[0]:s[1]+1],self.c_sum])
 
     def step(self):
@@ -157,7 +164,7 @@ class game_of_life():
         self.grid2 = self.create_grid()
 
         slices = []
-        cores = cpu_count()-1
+        cores = cpu_count()
 
         s = ceil(self.grid_res/cores)
         for c in range(0,cores):
@@ -183,6 +190,7 @@ class game_of_life():
             s  = qo[0]
             self.grid[s[0]:s[1]+1] = qo[1]
             self.c_sum = self.c_sum + qo[2]
+
 
     def reset_grid(self):
         for x in range(self.grid_res):
@@ -281,7 +289,7 @@ def colorcycle():
 
 def grid_plus():
     global grid_res,gol
-    if grid_res < 140:
+    if grid_res < 160:
         screen.fill(colors[0])
         grid_res = grid_res + 10
         gol.reset_grid()
