@@ -9,17 +9,17 @@ pip install pygame
 
 Left  click : add/remove a cell
 
-Right click : pause/unpause
+Middle click / D : Generate random cells
+
+Right click / Space : pause/unpause
 
 Mouse wheel : change grid resolution
 
 Keypad +/-  : Speed +/- (from 2 to 60 refresh per second)
 
-Return : clear all cells
+Return / R : clear all cells
 
 S : Step-by-step
-
-D : Generate random cells
 
 F : Print grid in CLI (low res grids work best)
 
