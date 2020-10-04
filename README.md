@@ -31,6 +31,8 @@ NEW ! Now with a rule editor :
 
 ![Screenshot](image.png?raw=true)
 
+Note : enabling 0 in 'Stay' will only disable the performance improvments. This is a debug feature.
+
 
 ![](https://i.imgur.com/PkrTGnp.png)
 
