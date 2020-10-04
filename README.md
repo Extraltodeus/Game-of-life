@@ -21,7 +21,7 @@ S : Step-by-step
 
 D : Generate random cells
 
-F : Print grid in CLI
+F : Print grid in CLI (low res grids work best)
 
 G : Do one step and print grid in CLI
 
