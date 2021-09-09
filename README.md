@@ -27,7 +27,7 @@ G : Do one step and print grid in CLI
 
 ## Screenshot :
 
-NEW ! Now with a rule editor :
+Now with a rule editor :
 
 ![Screenshot](image.png?raw=true)
 
